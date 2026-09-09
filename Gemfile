@@ -1,3 +1,4 @@
 source "https://rubygems.org"
 
-gem "stripe", "~> 18.0"
+gem "sinatra", "~> 4.1"
+gem "stripe", "~> 19.4"
