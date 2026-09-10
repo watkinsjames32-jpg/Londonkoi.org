@@ -3,99 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Official website of London Koi — music, performances, events, merchandise, and studio projects.">
-  <meta name="theme-color" content="#000000">
-  <title>London Koi | Official Website</title>
+  <meta name="description" content="Official London Koi music, merchandise, performances and booking website.">
+  <meta name="theme-color" content="#f7efe2">
+  <title>London Koi | Music & Merch</title>
   <style>
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #111; color: #fff; line-height: 1.6; }
-    a { color: inherit; }
-    header { padding: 18px 7%; display: flex; justify-content: space-between; align-items: center; gap: 20px; background: rgba(0,0,0,.96); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #222; }
-    .logo { font-size: 1.45rem; font-weight: 800; letter-spacing: .12em; white-space: nowrap; }
-    nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 16px; }
-    nav a { text-decoration: none; font-size: .95rem; color: #ddd; }
-    nav a:hover, nav a:focus { color: #fff; }
-    .hero { min-height: 72vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 80px 7%; background: linear-gradient(135deg, #080808, #252525); }
-    .hero-inner { max-width: 820px; }
-    .eyebrow { text-transform: uppercase; letter-spacing: .18em; color: #bbb; font-size: .78rem; font-weight: 700; }
-    .hero h1 { font-size: clamp(3.4rem, 10vw, 7.5rem); line-height: .95; margin: 12px 0 18px; }
-    .hero p { font-size: 1.15rem; max-width: 680px; margin: 0 auto 26px; color: #ddd; }
-    .button { display: inline-block; padding: 13px 22px; margin: 7px; border-radius: 7px; background: #fff; color: #111; text-decoration: none; font-weight: 800; border: 1px solid #fff; }
-    .button.secondary { background: transparent; color: #fff; }
-    .button:hover, .button:focus { opacity: .88; }
-    main > section:not(.hero) { padding: 70px 7%; max-width: 1120px; margin: auto; }
-    section h2 { font-size: clamp(2rem, 4vw, 2.7rem); margin: 0 0 14px; }
-    .section-intro { color: #c9c9c9; max-width: 720px; margin-bottom: 28px; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
-    .card, .release-card { background: #1b1b1b; padding: 26px; border-radius: 12px; border: 1px solid #292929; }
-    .card h3, .release-card h3 { margin-top: 0; }
-    .status { display: inline-block; margin-bottom: 10px; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #bbb; }
-    .release-card { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 25px; }
-    .release-card h3 { margin-bottom: 5px; font-size: 1.65rem; }
-    .release-card p { margin: 0; color: #ccc; }
-    .notice { background: #171717; border: 1px solid #2d2d2d; border-radius: 10px; padding: 20px; color: #ccc; }
-    footer { text-align: center; padding: 34px 7%; background: #000; color: #999; border-top: 1px solid #222; }
-    @media (max-width: 760px) { header { flex-direction: column; align-items: flex-start; } nav { justify-content: flex-start; gap: 12px; } .release-card { grid-template-columns: 1fr; } .release-card .button { margin-left: 0; } }
+    :root{--cream:#f7efe2;--paper:#fffaf1;--ink:#121212;--coral:#ef5b47;--pink:#ef4f8b;--aqua:#83ddd4;--yellow:#f7d56a;--line:#1c1c1c;--muted:#665f57}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--cream);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.5}
+    a{color:inherit}
+    .topbar{background:var(--ink);color:#fff;padding:14px 6%;display:flex;align-items:center;justify-content:space-between;gap:20px;position:sticky;top:0;z-index:20;border-bottom:4px solid var(--coral)}
+    .brand{font-weight:900;letter-spacing:.1em;font-size:1.25rem}
+    nav{display:flex;flex-wrap:wrap;gap:16px}
+    nav a{text-decoration:none;font-weight:800;font-size:.9rem}
+    .hero{padding:68px 6% 54px;background:linear-gradient(135deg,#ffd9c8 0%,#ffeaa7 45%,#a8ebe3 100%);border-bottom:3px solid var(--line)}
+    .hero-inner{max-width:1180px;margin:auto;display:grid;grid-template-columns:1.2fr .8fr;gap:34px;align-items:center}
+    .kicker{font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;font-weight:900}
+    h1{font-size:clamp(3.5rem,10vw,8rem);line-height:.85;margin:12px 0 20px;text-transform:uppercase;letter-spacing:-.05em}
+    .hero p{font-size:clamp(1.1rem,2vw,1.45rem);max-width:660px;font-weight:700}
+    .hero-card{background:var(--pink);color:#fff;border:3px solid var(--line);box-shadow:12px 12px 0 var(--line);padding:34px;transform:rotate(2deg)}
+    .hero-card .big{font-size:2.8rem;font-weight:900;line-height:1;text-transform:uppercase}
+    .btn{display:inline-block;text-decoration:none;background:var(--coral);color:#fff;border:3px solid var(--line);padding:12px 20px;font-weight:900;text-transform:uppercase;box-shadow:4px 4px 0 var(--line);transition:.15s transform,.15s box-shadow}
+    .btn:hover,.btn:focus{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--line)}
+    .btn.alt{background:var(--aqua);color:var(--ink)}
+    section{max-width:1180px;margin:auto;padding:54px 6%}
+    .section-title{font-size:clamp(2rem,5vw,4rem);margin:0 0 10px;text-transform:uppercase;line-height:1}
+    .section-intro{font-weight:700;color:var(--muted);margin:0 0 26px}
+    .catalog{border:3px solid var(--line);background:var(--paper)}
+    .song-row{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;padding:18px 24px;border-bottom:2px solid #d7cfc4}
+    .song-row:last-child{border-bottom:0}
+    .song-name{font-size:1.15rem;font-weight:900;text-transform:uppercase}
+    .price{font-size:1.8rem;font-weight:900}
+    .song-row .btn{padding:9px 16px}
+    .accent-panel{margin-top:34px;border:3px solid var(--line);background:linear-gradient(135deg,var(--pink),#ff7a83);padding:34px;color:#fff;box-shadow:9px 9px 0 var(--line)}
+    .accent-panel h3{font-size:clamp(2.2rem,6vw,5rem);margin:0;text-transform:uppercase;line-height:.9}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .card{border:3px solid var(--line);background:var(--paper);padding:24px;box-shadow:6px 6px 0 var(--line)}
+    .card:nth-child(2){background:#d9f4ef}.card:nth-child(3){background:#ffe3ec}
+    .card h3{margin:0 0 8px;text-transform:uppercase;font-size:1.35rem}
+    .merch-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+    .merch{border:3px solid var(--line);background:var(--paper);padding:28px}
+    .merch.featured{background:#fff0b8}
+    .merch .price{margin:12px 0}
+    .booking{background:var(--aqua);border-top:3px solid var(--line);border-bottom:3px solid var(--line)}
+    .booking-box{max-width:1180px;margin:auto;padding:54px 6%;display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+    footer{background:var(--ink);color:#fff;padding:32px 6%;text-align:center;font-weight:700}
+    @media(max-width:780px){.topbar{align-items:flex-start;flex-direction:column}.hero-inner,.booking-box{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.merch-grid{grid-template-columns:1fr}.song-row{grid-template-columns:1fr auto}.song-row .btn{grid-column:1/-1;text-align:center}.hero-card{transform:none;box-shadow:7px 7px 0 var(--line)}}
   </style>
 </head>
 <body>
-<header>
-  <div class="logo">LONDON KOI</div>
+<header class="topbar">
+  <div class="brand">LONDON KOI</div>
   <nav aria-label="Primary navigation">
-    <a href="#music">Music</a><a href="#performances">Performances</a><a href="#events">Events</a><a href="#merch">Merch</a><a href="#studio">Studio</a>
+    <a href="#music">Music</a><a href="#merch">Merch</a><a href="#performances">Performances</a><a href="#booking">Booking</a>
   </nav>
 </header>
+
 <main>
   <section class="hero">
     <div class="hero-inner">
-      <div class="eyebrow">Official Website</div>
-      <h1>London Koi</h1>
-      <p>Music, performances, releases, merchandise, events, and studio projects from London Koi.</p>
-      <a class="button" href="#music">Listen &amp; Buy</a><a class="button secondary" href="#events">Events</a>
+      <div>
+        <div class="kicker">Official London Koi Store</div>
+        <h1>London Koi</h1>
+        <p>Music made loud. Gear made personal. Shop releases and official London Koi merchandise.</p>
+        <a class="btn" href="#music">Shop Music</a>
+        <a class="btn alt" href="#merch">Shop Merch</a>
+      </div>
+      <div class="hero-card">
+        <div class="big">Music.<br>Style.<br>London Koi.</div>
+        <p>Official releases, merch and booking in one place.</p>
+      </div>
     </div>
   </section>
 
   <section id="music">
-    <h2>Music</h2>
-    <p class="section-intro">Purchase London Koi releases securely through Stripe.</p>
-    <div class="release-card">
-      <div><span class="status">Available now · $0.99</span><h3>FaceTime</h3><p>Secure checkout through the official Stripe payment page.</p></div>
-      <a class="button" href="https://buy.stripe.com/5kQ3cx7J1bpC4ZT9YyefC04" target="_blank" rel="noopener noreferrer">Buy FaceTime</a>
+    <h2 class="section-title">London Koi Song List</h2>
+    <p class="section-intro">Every song, 99 cents each. Buy securely on Stripe.</p>
+    <div class="catalog">
+      <div class="song-row"><div class="song-name">Ride The Wave</div><div class="price">$0.99</div><a class="btn" href="https://buy.stripe.com/eVq00l1kDdxK9g93AaefC05" target="_blank" rel="noopener noreferrer">Buy</a></div>
+      <div class="song-row"><div class="song-name">Facetime Remix</div><div class="price">$0.99</div><a class="btn" href="https://buy.stripe.com/5kQ3cx7J1bpC4ZT9YyefC04" target="_blank" rel="noopener noreferrer">Buy</a></div>
+      <div class="song-row"><div class="song-name">Special</div><div class="price">$0.99</div><span class="btn" aria-disabled="true">Buy Soon</span></div>
+      <div class="song-row"><div class="song-name">Be Great</div><div class="price">$0.99</div><a class="btn" href="https://buy.stripe.com/9B6fZjbZhbpCfExeeOefC07" target="_blank" rel="noopener noreferrer">Buy</a></div>
+      <div class="song-row"><div class="song-name">I Am An Old Soul</div><div class="price">$0.99</div><span class="btn" aria-disabled="true">Buy Soon</span></div>
     </div>
-    <div style="height:18px"></div>
-    <div class="release-card">
-      <div><span class="status">Available now · $0.99</span><h3>Ride The Wave</h3><p>Secure checkout through the official Stripe payment page.</p></div>
-      <a class="button" href="https://buy.stripe.com/eVq00l1kDdxK9g93AaefC05" target="_blank" rel="noopener noreferrer">Buy Ride The Wave</a>
+    <div class="accent-panel">
+      <h3>Facetime</h3>
+      <p>London Koi release spotlight. Secure Stripe checkout is available for the Facetime Remix.</p>
+      <a class="btn alt" href="https://buy.stripe.com/5kQ3cx7J1bpC4ZT9YyefC04" target="_blank" rel="noopener noreferrer">Buy Facetime</a>
     </div>
-    <div style="height:18px"></div>
-    <div class="release-card">
-      <div><span class="status">Available now · $0.99</span><h3>Be Great</h3><p>Secure checkout through the official Stripe payment page.</p></div>
-      <a class="button" href="https://buy.stripe.com/9B6fZjbZhbpCfExeeOefC07" target="_blank" rel="noopener noreferrer">Buy Be Great</a>
+  </section>
+
+  <section id="merch">
+    <h2 class="section-title">Koi Ware</h2>
+    <p class="section-intro">Official London Koi merchandise.</p>
+    <div class="merch-grid">
+      <article class="merch featured"><h3>Koi Ware Tee Shirts</h3><p>Official London Koi apparel.</p><div class="price">$35.00</div><a class="btn" href="https://buy.stripe.com/6oUeVfe7pfFScsleeOefC06" target="_blank" rel="noopener noreferrer">Buy Tee Shirt</a></article>
+      <article class="merch"><h3>London Koi Merch</h3><p>More official merchandise and bundles are being prepared for secure checkout.</p><div class="price">More coming</div></article>
     </div>
   </section>
 
   <section id="performances">
-    <h2>Featured Performances</h2>
-    <p class="section-intro">Official London Koi performance content will appear here as it is added.</p>
-    <div class="cards"><div class="card"><h3>Featured Performance</h3><p>Video showcase coming soon.</p></div><div class="card"><h3>Live Sessions</h3><p>Live performance archive coming soon.</p></div><div class="card"><h3>New Clips</h3><p>New performance clips coming soon.</p></div></div>
-  </section>
-
-  <section id="about"><h2>Meet London Koi</h2><p class="section-intro">Welcome to the official London Koi website. Music, release information, performances, events, and official merchandise are collected here.</p></section>
-
-  <section id="events"><h2>Upcoming Events</h2><div class="notice">No public event dates are posted yet. New dates and performance information will be added here when confirmed.</div></section>
-
-  <section id="merch">
-    <h2>London Koi Merch</h2>
-    <p class="section-intro">Official London Koi merchandise available through secure Stripe checkout.</p>
-    <div class="release-card">
-      <div><span class="status">Available now · $35.00</span><h3>Koi Ware Tee Shirts</h3><p>Official merchandise. Taxes are handled in Stripe checkout.</p></div>
-      <a class="button" href="https://buy.stripe.com/6oUeVfe7pfFScsleeOefC06" target="_blank" rel="noopener noreferrer">Buy Tee Shirt</a>
+    <h2 class="section-title">Performances</h2>
+    <p class="section-intro">Featured London Koi performance content and new clips.</p>
+    <div class="grid">
+      <article class="card"><h3>Featured Performance</h3><p>Official performance showcase coming soon.</p></article>
+      <article class="card"><h3>Live Sessions</h3><p>Live session archive and performance clips.</p></article>
+      <article class="card"><h3>New Releases</h3><p>Follow the latest music and studio projects from London Koi.</p></article>
     </div>
   </section>
 
-  <section id="studio"><h2>7Music / Studio</h2><p class="section-intro">Studio projects, production, and music services from the London Koi creative team.</p></section>
+  <div class="booking" id="booking">
+    <div class="booking-box">
+      <div><h2 class="section-title">Book London Koi</h2><p>For performances, appearances, creative projects and studio inquiries.</p></div>
+      <div class="card"><h3>Booking & Studio</h3><p>Booking contact details and confirmed event dates can be added here without changing the storefront design.</p></div>
+    </div>
+  </div>
 </main>
-<footer>&copy; 2026 London Koi. All rights reserved.</footer>
+
+<footer>© 2026 London Koi. All rights reserved. Payments handled securely by Stripe.</footer>
 </body>
 </html>
