@@ -1,7 +1,8 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
 
-# London Koi is a static site; no build command is required.
+# London Koi is a static site with Netlify Functions for secure server-side integrations.
 
 [[headers]]
   for = "/*"
