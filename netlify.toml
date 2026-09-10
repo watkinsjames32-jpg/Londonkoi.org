@@ -1,8 +1,7 @@
 [build]
   publish = "."
-  functions = "netlify/functions"
 
-# London Koi is a static site with Netlify Functions for secure server-side integrations.
+# London Koi is a static site. Stripe checkout is handled by Stripe-hosted Payment Links / Buy Buttons.
 
 [[headers]]
   for = "/*"
