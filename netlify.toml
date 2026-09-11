@@ -1,7 +1,9 @@
 [build]
   publish = "."
+  functions = "netlify/functions"
 
-# London Koi is a static site. Stripe checkout is handled by Stripe-hosted Payment Links / Buy Buttons.
+# London Koi uses a Netlify Function to create Stripe Checkout Sessions securely.
+# Configure STRIPE_SECRET_KEY in Netlify environment variables; never commit it to GitHub.
 
 [[headers]]
   for = "/*"
