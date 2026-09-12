@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Master Uploads | London Koi Studio</title>
+  <style>
+    :root{--ink:#171218;--cream:#fff8e9;--paper:#fffdf7;--coral:#ff5b6e;--aqua:#62ddd1;--sun:#ffd84f;--muted:#645b61;--line:3px solid var(--ink);--shadow:8px 8px 0 var(--ink)}
+    *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}
+    button,input{font:inherit}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:15px 5%;background:var(--ink);color:#fff;border-bottom:5px solid var(--coral)}.logo{text-decoration:none;font-weight:950;letter-spacing:.12em;font-size:1.3rem}
+    main{max-width:780px;margin:auto;padding:52px 6% 80px}
+    .label{font-size:.78rem;font-weight:950;letter-spacing:.18em;text-transform:uppercase}
+    h1{font-size:clamp(2.4rem,6vw,3.8rem);line-height:.9;margin:8px 0 14px;text-transform:uppercase;letter-spacing:-.04em}
+    .intro{font-weight:700;color:var(--muted);margin:0 0 28px}
+    .panel{border:var(--line);background:var(--paper);box-shadow:var(--shadow);padding:24px;margin-bottom:24px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}label{font-weight:850}
+    input{width:100%;border:2px solid var(--ink);background:#fffdf7;padding:11px}
+    .btn{display:inline-block;padding:11px 18px;border:var(--line);background:var(--coral);color:#fff;text-transform:uppercase;font-weight:950;box-shadow:5px 5px 0 var(--ink);cursor:pointer}.btn.alt{background:var(--aqua);color:var(--ink)}.btn[disabled]{opacity:.45;pointer-events:none}
+    .row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:16px 0;border-bottom:2px solid #d7ccc3}.row:last-child{border-bottom:0}
+    .row-name{font-weight:950;text-transform:uppercase}
+    .row-meta{font-size:.85rem;font-weight:700;color:var(--muted)}
+    .ok{color:#12704f}.pending{color:#a2521b}
+    .msg{border:var(--line);padding:16px;font-weight:800;background:var(--sun);margin-bottom:20px}
+    .msg.bad{background:#ffd6c7}
+    .hide{display:none}
+  </style>
+</head>
+<body>
+<header class="topbar"><a class="logo" href="/">LONDON KOI</a><span class="label">Studio only</span></header>
+<main>
+  <div class="label">Studio</div>
+  <h1>Master Uploads</h1>
+  <p class="intro">Upload the full-length file for each song. Buyers get these files automatically after they pay — nothing here is ever served without a paid order.</p>
+
+  <div id="msg" class="msg hide" role="status"></div>
+
+  <div id="gate" class="panel">
+    <div class="field">
+      <label for="tok">Admin token</label>
+      <input id="tok" type="password" autocomplete="current-password" placeholder="MUSIC_ADMIN_TOKEN">
+    </div>
+    <button class="btn" id="unlock" type="button">Unlock</button>
+  </div>
+
+  <div id="list" class="panel hide"></div>
+</main>
+<script>
+(function () {
+  var CHUNK = 4 * 1024 * 1024;
+  var gate = document.getElementById('gate');
+  var list = document.getElementById('list');
+  var msgBox = document.getElementById('msg');
+  var tokenInput = document.getElementById('tok');
+  var token = sessionStorage.getItem('lk_admin_token') || '';
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function say(text, bad) {
+    msgBox.textContent = text;
+    msgBox.className = 'msg' + (bad ? ' bad' : '');
+  }
+
+  function mb(bytes) {
+    return (Number(bytes) / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function render(tracks) {
+    var html = '';
+    tracks.forEach(function (track) {
+      var meta = track.ready
+        ? '<span class="ok">Ready · ' + esc(mb(track.size)) + ' · uploaded ' +
+          esc(new Date(track.uploadedAt).toLocaleDateString()) + '</span>'
+        : '<span class="pending">No file yet — buyers see a hold message</span>';
+      html += '<div class="row"><div><div class="row-name">' + esc(track.title) + '</div>' +
+        '<div class="row-meta" id="meta-' + esc(track.trackId) + '">' + meta + '</div></div>' +
+        '<div><input class="hide" type="file" accept="audio/*" id="file-' + esc(track.trackId) + '">' +
+        '<button class="btn alt" type="button" data-pick="' + esc(track.trackId) + '">' +
+        (track.ready ? 'Replace' : 'Upload') + '</button></div></div>';
+    });
+    list.innerHTML = html;
+    list.classList.remove('hide');
+
+    list.querySelectorAll('[data-pick]').forEach(function (button) {
+      var id = button.getAttribute('data-pick');
+      var input = document.getElementById('file-' + id);
+      button.addEventListener('click', function () { input.click(); });
+      input.addEventListener('change', function () {
+        if (input.files && input.files[0]) upload(id, input.files[0], button);
+      });
+    });
+  }
+
+  function refresh() {
+    return fetch('/api/upload-master', { headers: { 'x-admin-token': token } })
+      .then(function (response) {
+        return response.json().then(function (data) { return { status: response.status, data: data }; });
+      })
+      .then(function (result) {
+        if (result.status !== 200) {
+          say(result.data.error || 'Could not load upload status.', true);
+          sessionStorage.removeItem('lk_admin_token');
+          gate.classList.remove('hide');
+          return;
+        }
+        sessionStorage.setItem('lk_admin_token', token);
+        gate.classList.add('hide');
+        msgBox.classList.add('hide');
+        render(result.data.tracks || []);
+      })
+      .catch(function () { say('Could not reach the server.', true); });
+  }
+
+  function upload(trackId, file, button) {
+    var meta = document.getElementById('meta-' + trackId);
+    var uploadId = 'u' + Date.now() + Math.random().toString(36).slice(2, 8);
+    var total = Math.max(1, Math.ceil(file.size / CHUNK));
+    button.disabled = true;
+
+    function sendChunk(index) {
+      if (index >= total) {
+        return fetch('/api/upload-master?finalize=1', {
+          method: 'POST',
+          headers: { 'x-admin-token': token, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            trackId: trackId,
+            uploadId: uploadId,
+            totalChunks: total,
+            contentType: file.type || 'audio/mpeg'
+          })
+        }).then(function (response) {
+          return response.json().then(function (data) {
+            if (response.status !== 200) throw new Error(data.error || 'Upload failed.');
+            return data;
+          });
+        });
+      }
+
+      var form = new FormData();
+      form.append('trackId', trackId);
+      form.append('uploadId', uploadId);
+      form.append('chunkIndex', String(index));
+      form.append('chunk', file.slice(index * CHUNK, (index + 1) * CHUNK));
+
+      return fetch('/api/upload-master', {
+        method: 'POST',
+        headers: { 'x-admin-token': token },
+        body: form
+      }).then(function (response) {
+        return response.json().then(function (data) {
+          if (response.status !== 200) throw new Error(data.error || 'Upload failed.');
+          meta.innerHTML = '<span class="pending">Uploading… ' +
+            Math.round(((index + 1) / total) * 100) + '%</span>';
+          return sendChunk(index + 1);
+        });
+      });
+    }
+
+    meta.innerHTML = '<span class="pending">Uploading… 0%</span>';
+    sendChunk(0)
+      .then(function () { say('"' + file.name + '" is live for buyers.'); return refresh(); })
+      .catch(function (error) {
+        say(error.message || 'Upload failed.', true);
+        button.disabled = false;
+      });
+  }
+
+  document.getElementById('unlock').addEventListener('click', function () {
+    token = tokenInput.value.trim();
+    if (!token) { say('Enter the admin token.', true); return; }
+    refresh();
+  });
+  tokenInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') document.getElementById('unlock').click();
+  });
+
+  if (token) refresh();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "londonkoi-org",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "LondonKoi.org - official site, Stripe checkout and paid music downloads.",
+  "dependencies": {
+    "@netlify/blobs": "^11.0.3",
+    "@netlify/database": "^2.0.1"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^6.0.0"
+  }
+}
