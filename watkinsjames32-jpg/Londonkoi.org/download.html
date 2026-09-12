@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#ff5b6e">
+  <title>Your Downloads | London Koi</title>
+  <style>
+    :root{--ink:#171218;--cream:#fff8e9;--paper:#fffdf7;--coral:#ff5b6e;--pink:#ed4e98;--aqua:#62ddd1;--sun:#ffd84f;--muted:#645b61;--line:3px solid var(--ink);--shadow:8px 8px 0 var(--ink)}
+    *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}a{color:inherit}button{font:inherit}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:22px;padding:15px 5%;background:var(--ink);color:#fff;border-bottom:5px solid var(--coral)}.logo{text-decoration:none;font-weight:950;letter-spacing:.12em;font-size:1.3rem}.nav a{text-decoration:none;font-weight:850;font-size:.88rem}
+    main{max-width:820px;margin:auto;padding:58px 6% 80px}
+    .label{font-size:.78rem;font-weight:950;letter-spacing:.18em;text-transform:uppercase}
+    h1{font-size:clamp(2.6rem,7vw,4.6rem);line-height:.88;margin:8px 0 16px;text-transform:uppercase;letter-spacing:-.045em}
+    .intro{font-size:1.08rem;font-weight:700;color:var(--muted);margin:0 0 30px}
+    .panel{border:var(--line);background:var(--paper);box-shadow:var(--shadow);padding:26px}
+    .track{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:18px 0;border-bottom:2px solid #d7ccc3}.track:last-child{border-bottom:0}
+    .track-name{font-size:1.12rem;font-weight:950;text-transform:uppercase}
+    .track-meta{font-size:.86rem;font-weight:700;color:var(--muted);margin-top:3px}
+    .btn{display:inline-block;padding:12px 20px;border:var(--line);background:var(--coral);color:#fff;text-decoration:none;text-transform:uppercase;font-weight:950;box-shadow:5px 5px 0 var(--ink);cursor:pointer;transition:.15s}.btn:hover,.btn:focus{transform:translate(2px,2px);box-shadow:3px 3px 0 var(--ink)}.btn.alt{background:var(--aqua);color:var(--ink)}.btn.dark{background:var(--ink)}.btn[disabled]{opacity:.45;pointer-events:none}
+    .note{margin-top:24px;font-weight:750;font-size:.94rem}
+    .keep{margin-top:20px;border:2px dashed var(--ink);background:#dffffa;padding:16px}
+    .keep code{display:block;margin-top:8px;word-break:break-all;font-size:.82rem;background:#fff;border:2px solid var(--ink);padding:9px}
+    .msg{border:var(--line);background:var(--sun);padding:22px;font-weight:800}
+    .msg.bad{background:#ffd6c7}
+    .spin{display:inline-block;width:15px;height:15px;border:3px solid var(--ink);border-top-color:transparent;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:9px}@keyframes sp{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.spin{animation:none}}
+    footer{background:var(--ink);color:#fff;padding:30px 6%;font-weight:750}
+    @media(max-width:560px){.track{grid-template-columns:1fr}.track .btn{justify-self:start}}
+  </style>
+</head>
+<body>
+<header class="topbar"><a class="logo" href="/">LONDON KOI</a><nav class="nav"><a href="/#music">Music &amp; Merch</a></nav></header>
+<main>
+  <div class="label">Thank you</div>
+  <h1>Your Downloads</h1>
+  <p class="intro">Your purchase is confirmed. Download your files below — they stay available on this page for 30 days.</p>
+  <div id="out" aria-live="polite"><div class="msg"><span class="spin"></span>Checking your purchase…</div></div>
+  <p class="note">Trouble with a download? Email <a href="mailto:maxx41111@gmail.com">maxx41111@gmail.com</a> and include the reference below.</p>
+</main>
+<footer>© 2026 London Koi. All rights reserved.</footer>
+<script>
+(function () {
+  var out = document.getElementById('out');
+  var params = new URLSearchParams(location.search);
+  var sessionId = params.get('session_id');
+  // A link from the receipt wins, then a fresh Stripe redirect, then whatever
+  // this browser has used before.
+  var token = params.get('token') || (sessionId ? null : localStorage.getItem('lk_download_token'));
+  var attempts = 0;
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function message(text, bad) {
+    out.innerHTML = '<div class="msg' + (bad ? ' bad' : '') + '">' + text + '</div>';
+  }
+
+  function renderReady(data) {
+    if (!data.tracks || !data.tracks.length) {
+      message('This order did not include any music downloads. If you bought Koi Ware, the booking team will be in touch about delivery.');
+      return;
+    }
+    var expires = new Date(data.expiresAt);
+    var html = '<div class="panel">';
+    data.tracks.forEach(function (track) {
+      var meta = track.ready
+        ? track.remaining + ' of ' + track.maxDownloads + ' downloads left'
+        : 'Being prepared — check back shortly';
+      html += '<div class="track"><div><div class="track-name">' + esc(track.title) + '</div>' +
+        '<div class="track-meta">' + esc(meta) + '</div></div>';
+      if (track.ready && track.remaining > 0) {
+        html += '<a class="btn" href="' + esc(track.url) + '">Download</a>';
+      } else {
+        html += '<button class="btn" disabled>' + (track.ready ? 'Limit reached' : 'Not ready') + '</button>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+    html += '<div class="keep"><strong>Keep this link.</strong> It reopens your downloads on any device until ' +
+      esc(expires.toLocaleDateString()) + '.<code>' + esc(location.origin + '/download.html?token=' + data.token) + '</code></div>';
+    out.innerHTML = html;
+  }
+
+  function load() {
+    attempts += 1;
+    var query = token ? 'token=' + encodeURIComponent(token) : 'session_id=' + encodeURIComponent(sessionId);
+    fetch('/api/downloads?' + query, { headers: { accept: 'application/json' } })
+      .then(function (response) {
+        return response.json().then(function (data) { return { status: response.status, data: data }; });
+      })
+      .then(function (result) {
+        var data = result.data || {};
+        if (data.status === 'pending') {
+          if (attempts < 12) {
+            message('<span class="spin"></span>Payment received — setting up your downloads…');
+            setTimeout(load, 2500);
+          } else {
+            message('Your payment is still being confirmed. Refresh this page in a minute, or email us and we will sort it out.', true);
+          }
+          return;
+        }
+        if (data.status === 'expired') {
+          message('This download link has expired. Email us and we will reissue it.', true);
+          return;
+        }
+        if (data.status !== 'ready') {
+          message('We could not find that purchase. Check the link from your receipt, or email us for help.', true);
+          return;
+        }
+        if (data.token) localStorage.setItem('lk_download_token', data.token);
+        renderReady(data);
+      })
+      .catch(function () {
+        message('Something went wrong loading your downloads. Please refresh the page.', true);
+      });
+  }
+
+  if (!sessionId && !token) {
+    message('Open the download link from your receipt to see your files.', true);
+  } else {
+    load();
+  }
+})();
+</script>
+</body>
+</html>
