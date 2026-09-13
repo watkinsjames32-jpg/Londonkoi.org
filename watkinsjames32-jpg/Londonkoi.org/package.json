@@ -1,0 +1,12 @@
+{
+  "name": "londonkoi-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "londonkoi.org static site and Netlify Functions for Stripe checkout and paid music downloads.",
+  "dependencies": {
+    "@netlify/blobs": "^11.0.3"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^6.0.0"
+  }
+}
