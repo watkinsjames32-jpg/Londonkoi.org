@@ -38,12 +38,51 @@
 
   <div class="band" id="events"><div class="band-inner"><div class="label">Calendar</div><h2 class="title">Events</h2><p class="intro">Confirmed public dates will appear here first.</p><img class="event-flyer" src="assets/face-is-time-anytime-tour.webp" width="1024" height="1536" loading="lazy" decoding="async" alt="London Koi Face Is Time Anytime Tour flyer for 2026–2027, with tickets and VIP packages available soon"><div class="event"><div class="date">Coming Soon</div><div><h3>Upcoming London Koi Events</h3><p>No public performance date is confirmed yet. Booking inquiries are open.</p></div><a class="btn dark" href="#booking">Book London Koi</a></div><div class="event"><div class="date">Past Shows</div><div><h3>Performance Archive</h3><p>Photos, clips and show details will be added as the archive grows.</p></div><a class="btn" href="#performances">View Features</a></div></div></div>
 
-  <div class="shop" id="music"><div class="shop-inner"><div class="label">Official Store</div><h2 class="title">Music &amp; Merch</h2><p class="intro">Buy available releases and official Koi Ware. Each Buy button opens London Koi’s secure Stripe checkout page.</p><div class="catalog"><div class="song"><div class="song-name">Ride The Wave</div><div class="price">$0.99</div><a class="btn" href="https://buy.stripe.com/eVq00l1kDdxK9g93AaefC05" target="_blank" rel="noopener noreferrer" aria-label="Buy Ride The Wave on Stripe">Buy</a></div><div class="song"><div class="song-name">Facetime Remix</div><div class="price">$0.99</div><a class="btn" href="https://buy.stripe.com/5kQ3cx7J1bpC4ZT9YyefC04" target="_blank" rel="noopener noreferrer" aria-label="Buy Facetime Remix on Stripe">Buy</a></div><div class="song"><div class="song-name">Be Great</div><div class="price">$0.99</div><a class="btn" href="https://buy.stripe.com/9B6fZjbZhbpCfExeeOefC07" target="_blank" rel="noopener noreferrer" aria-label="Buy Be Great on Stripe">Buy</a></div><div class="song"><div class="song-name">Special</div><div class="price">$0.99</div><span class="btn disabled" aria-disabled="true">Coming Soon</span></div><div class="song"><div class="song-name">Imma Old Soul</div><div class="price">$0.99</div><span class="btn disabled" aria-disabled="true">Coming Soon</span></div></div><p class="secure">Secure payment is handled by Stripe. Card details are never entered on LondonKoi.org.</p><div class="merch-grid"><article class="merch featured"><div class="label">Koi Ware</div><h3>Official Tee Shirt</h3><p>Official London Koi apparel in a soft cotton fit.</p><div class="price">$35.00</div><a class="btn dark" href="https://buy.stripe.com/6oUeVfe7pfFScsleeOefC06" target="_blank" rel="noopener noreferrer">Buy Tee Shirt</a></article><article class="merch"><div class="label">Next Drop</div><h3>More Koi Ware</h3><p>New merchandise, fan pieces and bundles are being prepared. Nothing is charged until a working Stripe Buy button is shown.</p></article></div></div></div>
+  <div class="shop" id="music"><div class="shop-inner"><div class="label">Official Store</div><h2 class="title">Music &amp; Merch</h2><p class="intro">Buy available releases and official Koi Ware. Each Buy button opens London Koi’s secure Stripe checkout page.</p><p id="checkout-status" class="secure" role="status" aria-live="polite" hidden></p><div class="catalog"><div class="song"><div class="song-name">Ride The Wave</div><div class="price">$0.99</div><button class="btn checkout-btn" type="button" data-product-id="ride_the_wave" aria-label="Buy Ride The Wave with Stripe">Buy</button></div><div class="song"><div class="song-name">Facetime Remix</div><div class="price">$0.99</div><button class="btn checkout-btn" type="button" data-product-id="facetime_remix" aria-label="Buy FaceTime Remix with Stripe">Buy</button></div><div class="song"><div class="song-name">Be Great</div><div class="price">$0.99</div><button class="btn checkout-btn" type="button" data-product-id="be_great" aria-label="Buy Be Great with Stripe">Buy</button></div><div class="song"><div class="song-name">Special</div><div class="price">$0.99</div><span class="btn disabled" aria-disabled="true">Coming Soon</span></div><div class="song"><div class="song-name">Imma Old Soul</div><div class="price">$0.99</div><span class="btn disabled" aria-disabled="true">Coming Soon</span></div></div><p class="secure">Secure payment is handled by Stripe. Card details are never entered on LondonKoi.org.</p><div class="merch-grid"><article class="merch featured"><div class="label">Koi Ware</div><h3>Official Tee Shirt</h3><p>Official London Koi apparel in a soft cotton fit.</p><div class="price">$35.00</div><button class="btn dark checkout-btn" type="button" data-product-id="koi_ware_tee">Buy Tee Shirt</button></article><article class="merch"><div class="label">Next Drop</div><h3>More Koi Ware</h3><p>New merchandise, fan pieces and bundles are being prepared. Nothing is charged until a working Stripe Buy button is shown.</p></article></div></div></div>
 
   <section id="studio"><div class="label">Create</div><h2 class="title">Studio</h2><p class="intro">Music creation, recording and creative collaboration from the London Koi team.</p><div class="studio"><div class="studio-panel"><h3>7Music / Studio</h3><p>Follow upcoming recording projects, releases and behind-the-scenes studio work.</p></div><div class="studio-panel"><h3>Creative Projects</h3><p>For features, appearances and project inquiries, send the booking team the details below.</p><a class="btn alt" href="#booking">Start an inquiry</a></div></div></section>
 
   <div class="contact" id="booking"><div class="contact-inner"><div><div class="label">Contact</div><h2 class="title">Book London Koi</h2><p class="intro">Share the date, location and type of event. The booking team will reply by email.</p><p><strong>Email:</strong><br><a href="mailto:maxx41111@gmail.com">maxx41111@gmail.com</a><br><a href="mailto:iamjohnsaxwilliams@gmail.com">iamjohnsaxwilliams@gmail.com</a></p></div><form class="form" name="booking" method="POST" data-netlify="true" netlify-honeypot="bot-field"><input type="hidden" name="form-name" value="booking"><p class="hidden"><label>Do not fill this out: <input name="bot-field"></label></p><div class="fields"><div class="field"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" required></div><div class="field"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div><div class="field"><label for="date">Event date</label><input id="date" name="event-date" type="date"></div><div class="field"><label for="type">Event type</label><select id="type" name="event-type"><option>Performance</option><option>Appearance</option><option>Studio project</option><option>Other</option></select></div><div class="field full"><label for="location">Event location</label><input id="location" name="location" autocomplete="street-address"></div><div class="field full"><label for="details">Booking details</label><textarea id="details" name="details" required></textarea></div></div><button class="btn dark" type="submit">Send Booking Request</button></form></div></div>
 </main>
 <footer><div class="footer-inner"><div><strong>LONDON KOI</strong><br>© 2026 London Koi. All rights reserved.</div><div class="footer-links"><a href="#music">Music &amp; Merch</a><a href="#booking">Contact</a><a href="#studio">Studio</a></div></div></footer>
+<script>
+  (() => {
+    const status = document.getElementById("checkout-status");
+    const buttons = document.querySelectorAll(".checkout-btn");
+
+    const showStatus = (message) => {
+      status.textContent = message;
+      status.hidden = false;
+    };
+
+    const checkoutState = new URLSearchParams(window.location.search).get("checkout");
+    if (checkoutState === "success") showStatus("Thank you! Your payment was successful.");
+    if (checkoutState === "cancelled") showStatus("Checkout was cancelled. You were not charged.");
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", async () => {
+        const originalText = button.textContent;
+        button.disabled = true;
+        button.textContent = "Opening secure checkout…";
+        showStatus("Connecting to Stripe…");
+
+        try {
+          const response = await fetch("/api/create-checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId: button.dataset.productId })
+          });
+          const data = await response.json();
+          if (!response.ok || !data.url) throw new Error(data.error || "Unable to start checkout.");
+          window.location.assign(data.url);
+        } catch (error) {
+          showStatus(error.message || "Checkout could not start. Please try again.");
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+      });
+    });
+  })();
+</script>
 </body>
 </html>
