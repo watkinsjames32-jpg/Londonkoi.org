@@ -1,80 +1,92 @@
-const PRODUCTS = {
-  ride_the_wave: { name: 'Ride The Wave', unit_amount: 99 },
-  facetime_remix: { name: 'Facetime Remix', unit_amount: 99 },
-  be_great: { name: 'Be Great', unit_amount: 99 },
-  koi_ware_tee: { name: 'Koi Ware Tee Shirt', unit_amount: 3500 }
-};
+const PRODUCTS = Object.freeze({
+  ride_the_wave: { name: "Ride The Wave", unitAmount: 99, type: "music" },
+  facetime_remix: { name: "FaceTime Remix", unitAmount: 99, type: "music" },
+  be_great: { name: "Be Great", unitAmount: 99, type: "music" },
+  koi_ware_tee: { name: "Koi Ware Tee Shirt", unitAmount: 3500, type: "merch" }
+});
 
-exports.handler = async function (event) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers: { Allow: 'POST' }, body: JSON.stringify({ error: 'Method not allowed' }) };
+const json = (data, status = 200) =>
+  new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store"
+    }
+  });
+
+export default async (request) => {
+  if (request.method !== "POST") {
+    return json({ error: "Method not allowed." }, 405);
   }
 
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
-    console.error('STRIPE_SECRET_KEY is not configured');
-    return { statusCode: 500, body: JSON.stringify({ error: 'Checkout is not configured yet.' }) };
+  const stripeKey = Netlify.env.get("STRIPE_SECRET_KEY");
+  if (!stripeKey) {
+    console.error("Stripe checkout is missing STRIPE_SECRET_KEY.");
+    return json({ error: "Checkout is temporarily unavailable." }, 503);
   }
 
   let payload;
   try {
-    payload = JSON.parse(event.body || '{}');
+    payload = await request.json();
   } catch {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid request body.' }) };
+    return json({ error: "Invalid checkout request." }, 400);
   }
 
-  const requestedItems = Array.isArray(payload.items) ? payload.items : [];
-  const normalized = [];
-
-  for (const item of requestedItems) {
-    const product = PRODUCTS[item.id];
-    const quantity = Math.max(1, Math.min(20, Number.parseInt(item.quantity, 10) || 1));
-    if (!product) continue;
-    normalized.push({ id: item.id, quantity, ...product });
+  const product = PRODUCTS[payload?.productId];
+  if (!product) {
+    return json({ error: "This item is not available for purchase." }, 400);
   }
 
-  if (!normalized.length) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Your cart is empty.' }) };
-  }
-
-  const origin = (event.headers.origin || 'https://londonkoi.org').replace(/\/$/, '');
-  const params = new URLSearchParams();
-  params.set('mode', 'payment');
-  params.set('success_url', `${origin}/?checkout=success#music`);
-  params.set('cancel_url', `${origin}/?checkout=cancelled#music`);
-  params.set('billing_address_collection', 'auto');
-
-  normalized.forEach((item, index) => {
-    params.set(`line_items[${index}][price_data][currency]`, 'usd');
-    params.set(`line_items[${index}][price_data][unit_amount]`, String(item.unit_amount));
-    params.set(`line_items[${index}][price_data][product_data][name]`, item.name);
-    params.set(`line_items[${index}][quantity]`, String(item.quantity));
+  const siteUrl = "https://londonkoi.org";
+  const params = new URLSearchParams({
+    mode: "payment",
+    success_url: `${siteUrl}/?checkout=success&session_id={CHECKOUT_SESSION_ID}#music`,
+    cancel_url: `${siteUrl}/?checkout=cancelled#music`,
+    "line_items[0][price_data][currency]": "usd",
+    "line_items[0][price_data][unit_amount]": String(product.unitAmount),
+    "line_items[0][price_data][product_data][name]": product.name,
+    "line_items[0][quantity]": "1",
+    "metadata[product_id]": payload.productId,
+    integration_identifier: "londonkoi_web_aquakoi7"
   });
 
+  if (product.type === "merch") {
+    params.set("shipping_address_collection[allowed_countries][0]", "US");
+  }
+
   try {
-    const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
+    const stripeResponse = await fetch("https://api.stripe.com/v1/checkout/sessions", {
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${secretKey}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
+        Authorization: `Bearer ${stripeKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Stripe-Version": "2026-07-29.dahlia"
       },
-      body: params.toString()
+      body: params
     });
 
     const stripeData = await stripeResponse.json();
 
-    if (!stripeResponse.ok || !stripeData.url) {
-      console.error('Stripe checkout error', stripeData);
-      return { statusCode: 502, body: JSON.stringify({ error: stripeData.error?.message || 'Unable to start checkout.' }) };
+    if (!stripeResponse.ok || typeof stripeData.url !== "string") {
+      console.error("Stripe Checkout Session creation failed", {
+        status: stripeResponse.status,
+        type: stripeData?.error?.type,
+        code: stripeData?.error?.code,
+        requestId: stripeResponse.headers.get("request-id")
+      });
+      return json({ error: "Stripe could not start checkout. Please try again." }, 502);
     }
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: stripeData.url })
-    };
+    return json({ url: stripeData.url });
   } catch (error) {
-    console.error('Checkout function failed', error);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Unable to connect to Stripe.' }) };
+    console.error("Stripe Checkout connection failed", {
+      name: error instanceof Error ? error.name : "UnknownError"
+    });
+    return json({ error: "Checkout could not connect to Stripe. Please try again." }, 502);
   }
+};
+
+export const config = {
+  path: "/api/create-checkout",
+  method: ["POST"]
 };
