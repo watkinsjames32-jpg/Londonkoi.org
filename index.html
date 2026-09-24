@@ -38,7 +38,7 @@
 
   <div class="band" id="events"><div class="band-inner"><div class="label">Calendar</div><h2 class="title">Events</h2><p class="intro">Confirmed public dates will appear here first.</p><img class="event-flyer" src="assets/face-is-time-anytime-tour.webp" width="1024" height="1536" loading="lazy" decoding="async" alt="London Koi Face Is Time Anytime Tour flyer for 2026–2027, with tickets and VIP packages available soon"><div class="event"><div class="date">Coming Soon</div><div><h3>Upcoming London Koi Events</h3><p>No public performance date is confirmed yet. Booking inquiries are open.</p></div><a class="btn dark" href="#booking">Book London Koi</a></div><div class="event"><div class="date">Past Shows</div><div><h3>Performance Archive</h3><p>Photos, clips and show details will be added as the archive grows.</p></div><a class="btn" href="#performances">View Features</a></div></div></div>
 
-  <div class="shop" id="music"><div class="shop-inner"><div class="label">Official Store</div><h2 class="title">Music &amp; Merch</h2><p class="intro">Buy available releases and official Koi Ware. Each Buy button opens London Koi’s secure Stripe checkout page.</p><p id="checkout-status" class="secure" role="status" aria-live="polite" hidden></p><div class="catalog"><div class="song"><div class="song-name">Ride The Wave</div><div class="price">$0.99</div><button class="btn checkout-btn" type="button" data-product-id="ride_the_wave" aria-label="Buy Ride The Wave with Stripe">Buy</button></div><div class="song"><div class="song-name">Facetime Remix</div><div class="price">$0.99</div><a class="btn" href="https://buy.stripe.com/28EdRb4wPfFSfExb2CefC0b" aria-label="Buy FaceTime with Stripe">Buy</a></div><div class="song"><div class="song-name">Be Great</div><div class="price">$0.99</div><button class="btn checkout-btn" type="button" data-product-id="be_great" aria-label="Buy Be Great with Stripe">Buy</button></div><div class="song"><div class="song-name">Special</div><div class="price">$0.99</div><span class="btn disabled" aria-disabled="true">Coming Soon</span></div><div class="song"><div class="song-name">Imma Old Soul</div><div class="price">$0.99</div><span class="btn disabled" aria-disabled="true">Coming Soon</span></div></div><p class="secure">Secure payment is handled by Stripe. Card details are never entered on LondonKoi.org.</p><div class="merch-grid"><article class="merch featured"><div class="label">Koi Ware</div><h3>Official Tee Shirt</h3><p>Official London Koi apparel in a soft cotton fit.</p><div class="price">$35.00</div><button class="btn dark checkout-btn" type="button" data-product-id="koi_ware_tee">Buy Tee Shirt</button></article><article class="merch"><div class="label">Next Drop</div><h3>More Koi Ware</h3><p>New merchandise, fan pieces and bundles are being prepared. Nothing is charged until a working Stripe Buy button is shown.</p></article></div></div></div>
+  <div class="shop" id="music"><div class="shop-inner"><div class="label">Official Store</div><h2 class="title">Music &amp; Merch</h2><p class="intro">Buy available releases and official Koi Ware. Music purchases open Bandcamp when a release is available there; other available items use secure Stripe checkout.</p><p id="checkout-status" class="secure" role="status" aria-live="polite" hidden></p><div class="catalog"><div class="song"><div class="song-name">Ride The Wave</div><div class="price">$0.99</div><button class="btn checkout-btn bandcamp-btn" type="button" data-product-id="ride_the_wave" aria-label="Buy Ride The Wave">Buy</button></div><div class="song"><div class="song-name">Facetime Remix</div><div class="price">$0.99</div><a class="btn bandcamp-btn" data-product-id="facetime_remix" href="https://buy.stripe.com/28EdRb4wPfFSfExb2CefC0b" aria-label="Buy FaceTime">Buy</a></div><div class="song"><div class="song-name">Be Great</div><div class="price">$0.99</div><button class="btn checkout-btn bandcamp-btn" type="button" data-product-id="be_great" aria-label="Buy Be Great">Buy</button></div><div class="song"><div class="song-name">Special</div><div class="price">$0.99</div><span class="btn disabled" aria-disabled="true">Coming Soon</span></div><div class="song"><div class="song-name">Imma Old Soul</div><div class="price">$0.99</div><span class="btn disabled" aria-disabled="true">Coming Soon</span></div></div><p class="secure">Configured music releases are handled by Bandcamp; other purchases are handled by Stripe. Card details are never entered on LondonKoi.org.</p><div class="merch-grid"><article class="merch featured"><div class="label">Koi Ware</div><h3>Official Tee Shirt</h3><p>Official London Koi apparel in a soft cotton fit.</p><div class="price">$35.00</div><button class="btn dark checkout-btn" type="button" data-product-id="koi_ware_tee">Buy Tee Shirt</button></article><article class="merch"><div class="label">Next Drop</div><h3>More Koi Ware</h3><p>New merchandise, fan pieces and bundles are being prepared. Nothing is charged until a working Stripe Buy button is shown.</p></article></div></div></div>
 
   <section id="studio"><div class="label">Create</div><h2 class="title">Studio</h2><p class="intro">Music creation, recording and creative collaboration from the London Koi team.</p><div class="studio"><div class="studio-panel"><h3>7Music / Studio</h3><p>Follow upcoming recording projects, releases and behind-the-scenes studio work.</p></div><div class="studio-panel"><h3>Creative Projects</h3><p>For features, appearances and project inquiries, send the booking team the details below.</p><a class="btn alt" href="#booking">Start an inquiry</a></div></div></section>
 
@@ -49,6 +49,8 @@
   (() => {
     const status = document.getElementById("checkout-status");
     const buttons = document.querySelectorAll(".checkout-btn");
+    const bandcampLinks = new Map();
+    const bandcampButtons = document.querySelectorAll(".bandcamp-btn");
 
     const showStatus = (message) => {
       status.textContent = message;
@@ -59,8 +61,25 @@
     if (checkoutState === "success") showStatus("Thank you! Your payment was successful.");
     if (checkoutState === "cancelled") showStatus("Checkout was cancelled. You were not charged.");
 
+    fetch("/api/bandcamp-links")
+      .then((response) => { if (!response.ok) throw new Error("Store links unavailable"); return response.json(); })
+      .then(({ links }) => {
+        bandcampButtons.forEach((button) => {
+          const url = links?.[button.dataset.productId];
+          if (!url) return;
+          button.textContent = "Buy on Bandcamp";
+          button.closest(".song").querySelector(".price").textContent = "See Bandcamp price";
+          button.setAttribute("aria-label", `Buy ${button.dataset.productId.replaceAll("_", " ")} on Bandcamp`);
+          if (button.tagName === "A") button.href = url;
+          else bandcampLinks.set(button.dataset.productId, url);
+        });
+      })
+      .catch(() => {});
+
     buttons.forEach((button) => {
       button.addEventListener("click", async () => {
+        const bandcampUrl = bandcampLinks.get(button.dataset.productId);
+        if (bandcampUrl) { window.location.assign(bandcampUrl); return; }
         const originalText = button.textContent;
         button.disabled = true;
         button.textContent = "Opening secure checkout…";
