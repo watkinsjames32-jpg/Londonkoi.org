@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Music files | London Koi admin</title>
+  <style>
+    :root{--ink:#171218;--cream:#fff8e9;--paper:#fffdf7;--coral:#ff5b6e;--aqua:#62ddd1;--sun:#ffd84f;--line:3px solid var(--ink);--shadow:8px 8px 0 var(--ink)}
+    *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif}
+    main{max-width:760px;margin:auto;padding:48px 6%}
+    h1{font-size:clamp(2.2rem,6vw,3.4rem);line-height:.92;margin:0 0 10px;text-transform:uppercase;letter-spacing:-.04em}
+    .intro{font-weight:700;margin:0 0 28px}
+    .panel{border:var(--line);background:var(--paper);box-shadow:var(--shadow);padding:24px;margin-bottom:26px}
+    label{display:block;font-weight:850;margin-bottom:6px}
+    input{width:100%;border:2px solid var(--ink);background:#fffdf7;padding:11px;border-radius:0;font:inherit}
+    .btn{display:inline-block;margin:14px 10px 0 0;padding:11px 19px;border:var(--line);background:var(--coral);color:#fff;text-transform:uppercase;font-weight:950;box-shadow:5px 5px 0 var(--ink);cursor:pointer;font:inherit;font-weight:950}
+    .btn.alt{background:var(--aqua);color:var(--ink)}
+    .btn[disabled]{opacity:.5;cursor:default}
+    .track{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:16px 0;border-bottom:2px solid #d7ccc3}
+    .track:last-child{border-bottom:0}
+    .track h2{margin:0 0 4px;font-size:1.15rem;text-transform:uppercase}
+    .track p{margin:0;font-size:.9rem;color:#544b50}
+    .status{margin:18px 0 0;padding:12px 14px;border:2px solid var(--ink);background:var(--sun);font-weight:800}
+    .note{font-size:.88rem;color:#544b50}
+    @media(max-width:560px){.track{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Music files</h1>
+  <p class="intro">Upload the audio file that buyers receive after they purchase a song. Uploading here takes effect immediately &mdash; no site deploy is needed.</p>
+
+  <div class="panel">
+    <label for="key">Admin key</label>
+    <input id="key" type="password" autocomplete="current-password" placeholder="Site admin key">
+    <p class="note">Kept in this browser tab only. Ask the site owner for the key.</p>
+    <button class="btn" id="load" type="button">Show music files</button>
+    <p class="status" id="status" hidden></p>
+  </div>
+
+  <div class="panel" id="tracks-panel" hidden>
+    <div id="tracks"></div>
+    <p class="note">Files must be 6 MB or smaller. MP3 is recommended. Replacing a file updates the download for everyone who has already bought that song.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  var keyField = document.getElementById('key');
+  var status = document.getElementById('status');
+  var panel = document.getElementById('tracks-panel');
+  var container = document.getElementById('tracks');
+
+  function say(message) {
+    status.textContent = message || '';
+    status.hidden = !message;
+  }
+
+  function adminKey() {
+    return keyField.value.trim();
+  }
+
+  function request(options) {
+    return fetch('/api/admin/music' + (options.query || ''), {
+      method: options.method || 'GET',
+      headers: Object.assign({ 'x-admin-key': adminKey() }, options.headers || {}),
+      body: options.body
+    }).then(function (response) {
+      return response.json().then(function (data) {
+        if (!response.ok) throw new Error(data.error || 'Request failed.');
+        return data;
+      });
+    });
+  }
+
+  function upload(track, file, button) {
+    button.disabled = true;
+    say('Uploading ' + file.name + '…');
+
+    request({
+      method: 'PUT',
+      query: '?track=' + encodeURIComponent(track) + '&filename=' + encodeURIComponent(file.name),
+      headers: { 'Content-Type': file.type || 'audio/mpeg' },
+      body: file
+    })
+      .then(function () {
+        say('Uploaded. Buyers of this song can download it now.');
+        load();
+      })
+      .catch(function (error) {
+        button.disabled = false;
+        say(error.message);
+      });
+  }
+
+  function render(tracks) {
+    container.textContent = '';
+
+    tracks.forEach(function (track) {
+      var row = document.createElement('div');
+      row.className = 'track';
+
+      var info = document.createElement('div');
+      var heading = document.createElement('h2');
+      heading.textContent = track.name;
+      info.appendChild(heading);
+
+      var detail = document.createElement('p');
+      detail.textContent = track.filename
+        ? 'Ready to download: ' + track.filename
+        : 'No audio file uploaded yet.';
+      info.appendChild(detail);
+      row.appendChild(info);
+
+      var picker = document.createElement('input');
+      picker.type = 'file';
+      picker.accept = 'audio/*';
+      picker.hidden = true;
+
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'btn alt';
+      button.textContent = track.filename ? 'Replace file' : 'Upload file';
+      button.addEventListener('click', function () { picker.click(); });
+
+      picker.addEventListener('change', function () {
+        if (picker.files && picker.files[0]) upload(track.id, picker.files[0], button);
+      });
+
+      var actions = document.createElement('div');
+      actions.appendChild(button);
+      actions.appendChild(picker);
+      row.appendChild(actions);
+
+      container.appendChild(row);
+    });
+
+    panel.hidden = false;
+  }
+
+  function load() {
+    if (!adminKey()) {
+      say('Enter the admin key first.');
+      return;
+    }
+    request({})
+      .then(function (data) { render(data.tracks || []); })
+      .catch(function (error) {
+        panel.hidden = true;
+        say(error.message);
+      });
+  }
+
+  document.getElementById('load').addEventListener('click', load);
+  keyField.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') load();
+  });
+})();
+</script>
+</body>
+</html>

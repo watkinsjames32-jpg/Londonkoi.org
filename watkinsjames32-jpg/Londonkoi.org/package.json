@@ -1,0 +1,9 @@
+{
+  "name": "londonkoi-org",
+  "private": true,
+  "description": "Official London Koi website",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.0"
+  }
+}
