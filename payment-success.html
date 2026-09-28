@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Payment successful - London Koi Official Website">
+  <meta name="theme-color" content="#ff5b6e">
+  <title>Payment Successful | London Koi</title>
+  <style>
+    :root {
+      --ink: #171218;
+      --cream: #fff8e9;
+      --paper: #fffdf7;
+      --coral: #ff5b6e;
+      --aqua: #62ddd1;
+      --sun: #ffd84f;
+      --shadow: 8px 8px 0 rgba(0,0,0,0.2);
+    }
+    
+    * { box-sizing: border-box; }
+    
+    html { scroll-behavior: smooth; }
+    
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font: 16px/1.55 Arial, Helvetica, sans-serif;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .success-card {
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      padding: 40px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    
+    .success-icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin: 20px 0;
+      color: var(--coral);
+    }
+    
+    .receipt-info {
+      background: var(--cream);
+      border: 2px solid var(--ink);
+      padding: 20px;
+      margin: 30px 0;
+      text-align: left;
+    }
+    
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .receipt-row:last-child {
+      border-bottom: none;
+    }
+    
+    .receipt-label {
+      font-weight: bold;
+      color: var(--ink);
+    }
+    
+    .receipt-value {
+      color: #666;
+    }
+    
+    .download-section {
+      margin: 40px 0;
+      padding: 30px;
+      background: var(--aqua);
+      border: 3px solid var(--ink);
+    }
+    
+    .download-section h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      margin: 10px 5px;
+      border: 3px solid var(--ink);
+      background: var(--coral);
+      color: #fff;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      border-radius: 0;
+      font-size: 1rem;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 12px 12px 0 rgba(0,0,0,0.2);
+    }
+    
+    .btn-secondary {
+      background: var(--sun);
+      color: var(--ink);
+    }
+    
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+    }
+    
+    .spinner {
+      border: 4px solid var(--cream);
+      border-top: 4px solid var(--coral);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error-message {
+      background: #ffebee;
+      border: 3px solid #c62828;
+      color: #c62828;
+      padding: 20px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loading" class="success-card" style="display:none;">
+      <div class="loading">
+        <div class="spinner"></div>
+      </div>
+      <p>Processing your payment...</p>
+    </div>
+    
+    <div id="success" class="success-card" style="display:none;">
+      <div class="success-icon">✅</div>
+      <h1>Payment Successful!</h1>
+      <p>Thank you for supporting London Koi!</p>
+      
+      <div class="receipt-info">
+        <div class="receipt-row">
+          <span class="receipt-label">Order ID:</span>
+          <span class="receipt-value" id="orderId">—</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Email:</span>
+          <span class="receipt-value" id="payer">—</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Amount:</span>
+          <span class="receipt-value" id="amount">—</span>
+        </div>
+        <div class="receipt-row">
+          <span class="receipt-label">Status:</span>
+          <span class="receipt-value" id="status">Completed</span>
+        </div>
+      </div>
+      
+      <div class="download-section" id="downloadSection" style="display:none;">
+        <h2>📥 Download Your Music</h2>
+        <p>Your purchase is ready to download:</p>
+        <button class="btn" id="downloadBtn">Download Now</button>
+      </div>
+      
+      <div>
+        <button class="btn btn-secondary" onclick="window.location.href='/'">Continue Shopping</button>
+      </div>
+    </div>
+    
+    <div id="error" class="success-card" style="display:none;">
+      <div style="font-size: 40px; margin-bottom: 20px;">⚠️</div>
+      <h1 style="color: #c62828;">Payment Failed</h1>
+      <div class="error-message" id="errorMessage">
+        Something went wrong. Please try again.
+      </div>
+      <button class="btn btn-secondary" onclick="window.location.href='/#music'">
+        Return to Store
+      </button>
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get("token"); // PayPal returns "token" as the order ID
+
+      if (!orderId) {
+        showError("No order ID found. Payment may have been cancelled.");
+        return;
+      }
+
+      document.getElementById("loading").style.display = "block";
+
+      try {
+        // Capture the order on the backend
+        const response = await fetch("/api/paypal-capture-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          showError(result.error || "Payment capture failed");
+          return;
+        }
+
+        // Display success info
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("success").style.display = "block";
+        
+        document.getElementById("orderId").textContent = result.orderId;
+        document.getElementById("payer").textContent = result.payer || "N/A";
+        document.getElementById("amount").textContent = `$${result.amount} USD`;
+
+        // Show download button if available
+        if (result.downloadUrl) {
+          const downloadSection = document.getElementById("downloadSection");
+          downloadSection.style.display = "block";
+          
+          const downloadBtn = document.getElementById("downloadBtn");
+          downloadBtn.onclick = () => {
+            window.location.href = result.downloadUrl;
+          };
+        }
+      } catch (error) {
+        console.error("Payment processing error:", error);
+        showError(error.message);
+      }
+    })();
+
+    function showError(message) {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("success").style.display = "none";
+      document.getElementById("error").style.display = "block";
+      document.getElementById("errorMessage").textContent = message;
+    }
+  </script>
+</body>
+</html>
