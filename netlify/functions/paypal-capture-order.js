@@ -1,17 +1,21 @@
 // PayPal Capture Order Function
 // This endpoint captures (completes) a PayPal order after user approval
 
+function paypalBaseUrl() {
+  const mode = Netlify.env.get("PAYPAL_MODE") || "sandbox";
+  if (mode !== "sandbox" && mode !== "live") throw new Error("Invalid PAYPAL_MODE");
+  return mode === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+}
+
 async function getPayPalAccessToken() {
   const clientId = Netlify.env.get("PAYPAL_CLIENT_ID");
   const clientSecret = Netlify.env.get("PAYPAL_CLIENT_SECRET");
-  const mode = Netlify.env.get("PAYPAL_MODE") || "sandbox";
-  
   if (!clientId || !clientSecret) {
     throw new Error("PayPal credentials not configured");
   }
 
   const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-  const url = `https://api-${mode}.sandbox.paypal.com/v1/oauth2/token`;
+  const url = `${paypalBaseUrl()}/v1/oauth2/token`;
 
   const response = await fetch(url, {
     method: "POST",
@@ -42,7 +46,7 @@ export default async (request) => {
   try {
     const { orderId } = await request.json();
 
-    if (!orderId) {
+    if (typeof orderId !== "string" || !/^[A-Z0-9-]{10,40}$/i.test(orderId)) {
       return new Response(JSON.stringify({ error: "Order ID required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
@@ -51,11 +55,9 @@ export default async (request) => {
 
     // Get PayPal access token
     const accessToken = await getPayPalAccessToken();
-    const mode = Netlify.env.get("PAYPAL_MODE") || "sandbox";
-
     // Capture the order
     const captureResponse = await fetch(
-      `https://api-${mode}.sandbox.paypal.com/v1/checkout/orders/${orderId}/capture`,
+      `${paypalBaseUrl()}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`,
       {
         method: "POST",
         headers: {
@@ -77,7 +79,7 @@ export default async (request) => {
     const captureData = await captureResponse.json();
 
     // Verify payment was successful
-    if (captureData.status !== "COMPLETED") {
+    if (captureData.status !== "COMPLETED" || captureData.purchase_units?.[0]?.payments?.captures?.[0]?.status !== "COMPLETED") {
       return new Response(JSON.stringify({ error: "Payment not completed" }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
@@ -111,7 +113,7 @@ export default async (request) => {
     );
   } catch (error) {
     console.error("PayPal capture order error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error.message === "PayPal credentials not configured" ? "PayPal credentials not configured" : "Payment verification unavailable" }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });

@@ -38,7 +38,7 @@
 
   <div class="band" id="events"><div class="band-inner"><div class="label">Calendar</div><h2 class="title">Events</h2><p class="intro">Confirmed public dates will appear here first.</p><img class="event-flyer" src="assets/face-is-time-anytime-tour.webp" width="1024" height="1536" loading="lazy" decoding="async" alt="London Koi Face Is Time Anytime Tour flyer for 2026–2027"><div class="event"><div class="date">Coming Soon</div><div><h3>Upcoming London Koi Events</h3><p>No public performance date is confirmed yet. Booking inquiries are open.</p></div><a class="btn dark" href="#booking">Book London Koi</a></div></div></div>
 
-  <div class="shop" id="music"><div class="shop-inner"><div class="label">Official Store</div><h2 class="title">Music &amp; Merch</h2><p class="intro">Buy available releases and official Koi Ware. Each purchase is secure and includes instant download.</p><div class="catalog"><div class="song"><div class="song-name">Ride The Wave</div><div class="price">$9.99</div><button class="btn paypal-btn" type="button" data-product-id="ride_the_wave" aria-label="Buy Ride The Wave">Buy</button></div><div class="song"><div class="song-name">FaceTime Remix</div><div class="price">$4.99</div><button class="btn paypal-btn" type="button" data-product-id="facetime_remix" aria-label="Buy FaceTime Remix">Buy</button></div><div class="song"><div class="song-name">Be Great</div><div class="price">$7.99</div><button class="btn paypal-btn" type="button" data-product-id="be_great" aria-label="Buy Be Great">Buy</button></div><div class="song"><div class="song-name">London Koi Official T-Shirt</div><div class="price">$24.99</div><button class="btn paypal-btn" type="button" data-product-id="london_koi_tee" aria-label="Buy London Koi T-Shirt">Buy</button></div></div><div class="secure">🔒 Payments securely processed by PayPal</div></div></div>
+  <div class="shop" id="music"><div class="shop-inner"><div class="label">Official Store</div><h2 class="title">Music &amp; Merch</h2><p class="intro">Buy available releases and official Koi Ware. Checkout securely with PayPal. Music delivery and merchandise fulfillment are arranged after payment.</p><div class="catalog"><div class="song"><div class="song-name">Ride The Wave</div><div class="price">$9.99</div><button class="btn paypal-btn" type="button" data-product-id="ride_the_wave" aria-label="Buy Ride The Wave">Buy</button></div><div class="song"><div class="song-name">FaceTime Remix</div><div class="price">$4.99</div><button class="btn paypal-btn" type="button" data-product-id="facetime_remix" aria-label="Buy FaceTime Remix">Buy</button></div><div class="song"><div class="song-name">Be Great</div><div class="price">$7.99</div><button class="btn paypal-btn" type="button" data-product-id="be_great" aria-label="Buy Be Great">Buy</button></div><div class="song"><div class="song-name">London Koi Official T-Shirt</div><div class="price">$24.99</div><button class="btn paypal-btn" type="button" data-product-id="london_koi_tee" aria-label="Buy London Koi T-Shirt">Buy</button></div></div><div class="secure">🔒 Payments securely processed by PayPal</div></div></div>
 
   <section id="studio"><div class="label">Create</div><h2 class="title">Studio</h2><p class="intro">Music creation, recording and creative collaboration from the London Koi team.</p><div class="studio"><div class="studio-panel"><h3>7Music / Studio</h3><p>Follow upcoming recording projects, releases and behind-the-scenes studio work.</p></div><div class="studio-panel"><h3>Creative Projects</h3><p>For features, appearances and project inquiries, send the booking team the details below.</p><a class="btn alt" href="#booking">Start an inquiry</a></div></div></section>
 
@@ -67,22 +67,19 @@
             body: JSON.stringify({ productId, quantity: 1 })
           });
           
-          if (!createOrderResponse.ok) {
-            throw new Error("Failed to create PayPal order");
+          const result = await createOrderResponse.json();
+          if (!createOrderResponse.ok || !result.approvalUrl) {
+            throw new Error(result.error || "Failed to create PayPal order");
           }
-          
-          const { orderId } = await createOrderResponse.json();
-          
-          // Step 2: Redirect to PayPal checkout
-          // In production, you'd use PayPal's JavaScript SDK to open the checkout modal.
-          // For now, redirect to PayPal approval page.
-          const mode = "sandbox"; // Change to "live" in production
-          const approvalUrl = `https://www.paypal.com/${mode}/checkoutnow?token=${orderId}`;
+          const approvalUrl = new URL(result.approvalUrl);
+          if (approvalUrl.protocol !== "https:" || !["www.paypal.com", "www.sandbox.paypal.com"].includes(approvalUrl.hostname)) {
+            throw new Error("Invalid PayPal approval URL");
+          }
           window.location.href = approvalUrl;
           
         } catch (error) {
           console.error("Checkout error:", error);
-          alert("Payment setup failed. Please try again.");
+          alert(error.message || "Payment setup failed. Please try again.");
           button.disabled = false;
           button.textContent = "Buy";
         }
